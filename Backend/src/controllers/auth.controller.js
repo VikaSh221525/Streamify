@@ -87,3 +87,38 @@ export async function logoutUser(req, res) {
     res.clearCookie("token");
     res.status(200).json({ message: "Logout successfull" })
 }
+
+export async function onboard(req, res){
+    try{
+        const userId = req.user._id;
+        const {fullName, bio, nativeLanguage, learningLanguage, location} = req.body;
+
+        const updateduser = await userModel.findByIdAndUpdate(userId, {
+            fullName, bio, nativeLanguage, learningLanguage, location, isOnboarded: true
+        }, {new:true})
+        if(!updateduser){
+            return res.status(404).json({message: "User not found"})
+        }
+
+        // Update user in STREAM as WELL
+        try{
+            await upsertStreamUser({
+                id: updateduser._id.toString(),
+                name: updateduser.fullName,
+                image: updateduser.profilePic || "",
+            })
+            console.log(`stream user updated successfully for ${updateduser.fullName}`);
+        }catch(err){
+            console.log("Error in updating stream user", err.message);
+        }
+
+        res.status(200).json({
+            message: "User onboarded successfully",
+            user: updateduser
+        })
+
+    }catch(err){
+        console.log("Error in onboard user", err);
+        res.status(500).json({message: "Internal server error"})
+    }
+}
