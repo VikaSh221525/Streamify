@@ -1,16 +1,12 @@
 import express from 'express'
+import authRoutes from './routes/auth.route.js'
+import cookieParser from 'cookie-parser';
 const app = express();
 
-app.use(express.json())
+app.use(express.json());
+app.use(cookieParser());
 
-app.get('/api/auth/signup', (req,res) => {
-    res.send("SignUp Route")
-})
-app.get('/api/auth/login', (req,res) => {
-    res.send("signIn Route")
-})
-app.get('/api/auth/logout', (req,res) => {
-    res.send("Logout Route")
-})
+app.use('/api/auth', authRoutes)
+
 
 export default app;
