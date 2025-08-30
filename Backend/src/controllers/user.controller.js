@@ -33,3 +33,46 @@ export async function getMyFriends(req, res){
     }
 }
 
+export async function sendFriendRequest(req, res){
+    try{
+        const myId = req.user._id;
+        const {id : recipientId} = req.params;
+
+        // multiple checks
+        // prevent sending req to yourself
+        if(myId === recipientId){
+            return res.status(400).json({message: "You cannot send friend request to yourself"});
+        }
+        const recipient = await userModel.findById(recipientId);
+        if(!recipient){
+            return res.status(404).json({message: "Recipient user not found"});
+        }
+
+        // check if user is already a friend
+        if(recipient.friendRequests.includes(myId)){
+            return res.status(400).json({message: "Friend are already friends with this user"});
+        }
+
+        // check if req already exists
+        const existingRequest = await FriendRequest.findOne({
+            $or: [
+                {sender: myId, recipient: recipientId},
+                {sender: recipientId, recipient: myId}
+            ],
+        })
+        if(existingRequest){
+            return res.status(400).json({message: "Friend request already exists"});
+        }
+
+        const friendRequest = new FriendRequest.create({
+            sender: myId,
+            recipient: recipientId,
+        })
+        res.status(201).json({message: "Friend request sent successfully", friendRequest})
+
+    }catch(err){
+        console.log("Error in sending friend request", err.message);
+        res.status(500).json({message: "Internal server error"});
+    }
+}
+
