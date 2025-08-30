@@ -1,6 +1,7 @@
 import userModel from "../models/User.model.js";
 import bcrypt from 'bcryptjs';
 import jwt from "jsonwebtoken";
+import { upsertStreamUser } from "../db/stream.db.js";
 
 export async function registerUser(req, res) {
     try {
@@ -16,6 +17,18 @@ export async function registerUser(req, res) {
         const hashPassword = await bcrypt.hash(password, 10);
 
         const newUser = await userModel.create({ fullName, email, password: hashPassword, profilePic: randomAvatar });
+
+        // Create user in STREAM as WELL
+        try {
+            await upsertStreamUser({
+                id: newUser._id.toString(),
+                name: newUser.fullName,
+                image: newUser.profilePic || "",
+            });
+            console.log(`Stream user created successfully for ${newUser.fullName}`);
+        }catch(err){
+            console.log("Error in creating stream user", err);
+        }
 
         const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET)
         res.cookie("token", token, {
@@ -65,7 +78,7 @@ export async function loginUser(req, res) {
                 fullName: user.fullName
             }
         })
-    }catch(err){
+    } catch (err) {
         console.log("Error in login user", err);
         res.status(500).json({ message: "Internal server error" })
     }
