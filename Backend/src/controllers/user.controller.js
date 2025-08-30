@@ -40,7 +40,7 @@ export async function sendFriendRequest(req, res){
 
         // multiple checks
         // prevent sending req to yourself
-        if(myId === recipientId){
+        if(myId.toString() === recipientId.toString()){
             return res.status(400).json({message: "You cannot send friend request to yourself"});
         }
         const recipient = await userModel.findById(recipientId);
@@ -76,3 +76,32 @@ export async function sendFriendRequest(req, res){
     }
 }
 
+export async function acceptFriendRequest(req, res) {
+    try{
+        const {id: requestId} = req.params;
+        const friendRequest = await FriendRequest.findById(requestId);
+        if(!friendRequest){
+            return res.status(404).json({message: "Friend request not found"});
+        }
+        if(friendRequest.recipient.toString() !== req.user._id.toString()){
+            return res.status(403).json({message: "You are not authorized to accept this friend request"});
+        }
+        friendRequest.status = "accepted";
+        await friendRequest.save();
+
+        // update both users' friends list
+        // add to set : adds an elements to an array if they do not already exists
+        const sender = await userModel.findByIdAndUpdate(friendRequest.sender, {
+            $addToSet: {friends: friendRequest.recipient}
+        });
+        const recipient = await userModel.findByIdAndUpdate(friendRequest.recipient, {
+            $addToSet: {friends: friendRequest.sender}
+        });
+
+        res.status(200).json({message: "Friend request accepted successfully"});
+
+    }catch(err){
+        console.log("Error in accepting friend request", err.message);
+        res.status(500).json({message: "Internal server error"});
+    }
+}
