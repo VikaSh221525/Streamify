@@ -6,11 +6,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { signUp } from '../lib/api';
 
 const SignUpPage = () => {
-    const {
-        register,
-        handleSubmit,
-        formState: { errors },
-    } = useForm();
+    const { register, handleSubmit, formState: { errors } } = useForm();
 
     const queryClient = useQueryClient()
 
