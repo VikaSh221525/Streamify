@@ -20,7 +20,7 @@ const SignUpPage = () => {
         signUpMutation(data);
     };
     return (
-        <div className='h-screen flex items-center justify-center p-4 sm:p-6 md:p-8' data-theme="forest">
+        <div className='h-screen flex items-center justify-center p-4 sm:p-6 md:p-8'>
             <div className='border border-primary/25 flex flex-col md:flex-row w-full max-w-4xl mx-auto bg-base-100 rounded-xl shadow-lg overflow-hidden'>
                 {/* Illustration - hidden on mobile */}
                 <div className='hidden md:flex w-1/2 items-center justify-center bg-base-200'>
