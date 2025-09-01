@@ -5,7 +5,7 @@ const App = () => {
   // tanstack query get => useQuery
   // tanstack query post, delete, put => useMutation
   return (
-    <div>
+    <div data-theme='forest'>
       <Mainroute/>
     </div>
   )
