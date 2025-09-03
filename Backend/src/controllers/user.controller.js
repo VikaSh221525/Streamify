@@ -49,8 +49,8 @@ export async function sendFriendRequest(req, res){
         }
 
         // check if user is already a friend
-        if(recipient.friendRequests.includes(myId)){
-            return res.status(400).json({message: "Friend are already friends with this user"});
+        if(recipient.friends.includes(myId)){
+            return res.status(400).json({message: "You are already friends with this user"});
         }
 
         // check if req already exists
@@ -64,7 +64,7 @@ export async function sendFriendRequest(req, res){
             return res.status(400).json({message: "Friend request already exists"});
         }
 
-        const friendRequest = new FriendRequest.create({
+        const friendRequest = await FriendRequest.create({
             sender: myId,
             recipient: recipientId,
         })
