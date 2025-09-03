@@ -6,7 +6,7 @@ const useStreamToken = (authUser) => {
     return useQuery({
         queryKey:["streamToken"],
         queryFn: getStreamToken,
-        enabled: !!authUser
+        enabled: !!authUser  //this will run only when authUser is available
     })
 }
 
